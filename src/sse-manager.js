@@ -1,11 +1,12 @@
 import SSEClient, { formatText } from './sse-client';
+import { EventSourcePolyfill } from 'event-source-polyfill';
 
 export function install(Vue, config) {
   // eslint-disable-next-line no-param-reassign, no-multi-assign
   Vue.$sse = Vue.prototype.$sse = new SSEManager(config);
 
   if (config && config.polyfill) {
-    import('event-source-polyfill');
+    global.EventSource = EventSourcePolyfill;
   }
 
   // This mixin allows components to specify that all clients that were
@@ -25,10 +26,10 @@ export function install(Vue, config) {
     },
     beforeDestroy() {
       if (this.$sse.$clients !== null) {
-        this.$sse.$clients.forEach(c => c.disconnect());
+        this.$sse.$clients.forEach((c) => c.disconnect());
         this.$sse.$clients = [];
       }
-    }
+    },
   });
 }
 

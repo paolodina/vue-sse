@@ -40,10 +40,21 @@ export default class SSEClient {
     return this._source;
   }
 
-  connect() {
-    this._source = new window.EventSource(this.url, {
-      withCredentials: this.withCredentials,
-    });
+  connect(headers) {
+    if (headers) {
+      this._source = new window.EventSource(this.url, {
+        withCredentials: this.withCredentials,
+        // https://github.com/fanout/django-grip/blob/master/django_grip.py#L260
+        lastEventIdQueryParameterName: 'last-id',
+        headers,
+      });
+    } else {
+      this._source = new window.EventSource(this.url, {
+        withCredentials: this.withCredentials,
+        // https://github.com/fanout/django-grip/blob/master/django_grip.py#L260
+        lastEventIdQueryParameterName: 'last-id',
+      });
+    }
 
     return new Promise((resolve, reject) => {
       this._source.onopen = () => {
